@@ -7,7 +7,6 @@ export const QuizCard = ({ question, onAnswer, isLastQuestion }) => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
 
-  // Reset state when question changes
   useEffect(() => {
     setSelectedOption(null);
     setIsRevealed(false);
@@ -44,7 +43,6 @@ export const QuizCard = ({ question, onAnswer, isLastQuestion }) => {
 
   return html`
     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl overflow-hidden max-w-2xl mx-auto border border-gray-100 dark:border-slate-800 transition-colors duration-300">
-      <!-- Header / Translation Toggle -->
       <div className="bg-slate-50 dark:bg-slate-800/50 p-3 flex justify-end border-b border-gray-100 dark:border-slate-700">
         <button
           onClick=${toggleTranslation}
@@ -57,7 +55,6 @@ export const QuizCard = ({ question, onAnswer, isLastQuestion }) => {
         </button>
       </div>
 
-      <!-- Question Body -->
       <div className="p-6 md:p-8">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-slate-100 mb-6 leading-tight">
           ${currentText}
@@ -103,7 +100,6 @@ export const QuizCard = ({ question, onAnswer, isLastQuestion }) => {
           })}
         </div>
 
-        <!-- Feedback Section -->
         ${isRevealed && html`
           <div className="mt-8 animate-fade-in">
             <div className=${`p-4 rounded-lg border-l-4 ${selectedOption === question.correctAnswerIndex ? 'bg-green-50 dark:bg-green-900/10 border-green-500' : 'bg-blue-50 dark:bg-blue-900/10 border-blue-500'}`}>

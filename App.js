@@ -16,7 +16,6 @@ const App = () => {
   const [score, setScore] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Initialize Dark Mode
   useEffect(() => {
     const isDark = localStorage.getItem('astroquiz_theme') === 'dark' || 
       (!('astroquiz_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -40,7 +39,6 @@ const App = () => {
     }
   };
 
-  // Load seen questions from local storage on mount
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY_SEEN);
     if (stored) {
@@ -55,13 +53,11 @@ const App = () => {
     }
   }, []);
 
-  // Save seen questions whenever they change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_SEEN, JSON.stringify(Array.from(seenQuestionIds)));
   }, [seenQuestionIds]);
 
   const startQuiz = useCallback(() => {
-    // Randomize and slice questions
     const shuffled = [...questionBank].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, TOTAL_QUIZ_QUESTIONS);
     setActiveQuestions(selected);
@@ -73,7 +69,6 @@ const App = () => {
   const handleAnswer = (isCorrect) => {
     if (isCorrect) setScore(s => s + 1);
     
-    // Mark current question as seen
     const currentQ = activeQuestions[currentIndex];
     setSeenQuestionIds(prev => new Set(prev).add(currentQ.id));
 
@@ -94,7 +89,6 @@ const App = () => {
 
   return html`
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 pb-20 transition-colors duration-300">
-      <!-- Navbar -->
       <nav className="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl text-blue-900 dark:text-blue-400">
@@ -116,7 +110,6 @@ const App = () => {
                 Info
               </button>
             </div>
-            <!-- Theme Toggle -->
             <button 
               onClick=${toggleTheme}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-slate-400"
@@ -128,7 +121,6 @@ const App = () => {
         </div>
       </nav>
 
-      <!-- Main Content -->
       <main className="max-w-4xl mx-auto px-4 py-8">
         
         ${view === AppView.HOME && html`
