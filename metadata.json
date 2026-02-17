@@ -1,0 +1,5 @@
+{
+  "name": "AstroQuiz Master",
+  "description": "A specialized quiz application for memorizing astronomy and physics questions. Features random quiz generation, progress tracking, and on-the-fly translation.",
+  "requestFramePermissions": []
+}
