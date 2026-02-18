@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Question } from '../types';
 import { CheckCircleIcon, XCircleIcon, LanguageIcon } from '@heroicons/react/24/solid';
+import { translateText } from '../services/geminiService';
 
 interface QuizCardProps {
   question: Question;
@@ -12,12 +13,20 @@ export const QuizCard: React.FC<QuizCardProps> = ({ question, onAnswer, isLastQu
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
+  
+  const [dynamicTranslation, setDynamicTranslation] = useState<{
+    text: string;
+    options: string[];
+    explanation: string;
+  } | null>(null);
+  const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
 
   // Reset state when question changes
   useEffect(() => {
     setSelectedOption(null);
     setIsRevealed(false);
     setShowTranslation(false);
+    setDynamicTranslation(null);
   }, [question.id]);
 
   const handleOptionClick = (index: number) => {
@@ -32,20 +41,44 @@ export const QuizCard: React.FC<QuizCardProps> = ({ question, onAnswer, isLastQu
     }
   };
 
-  const toggleTranslation = () => {
-    if (!question.translation) {
-      alert("Translation not available for this question yet.");
+  const toggleTranslation = async () => {
+    // If we have static translation, use it
+    if (question.translation) {
+      setShowTranslation(!showTranslation);
       return;
     }
-    setShowTranslation(!showTranslation);
+
+    // If we already fetched dynamic translation, use it
+    if (dynamicTranslation) {
+      setShowTranslation(!showTranslation);
+      return;
+    }
+
+    // Otherwise fetch it
+    setIsLoadingTranslation(true);
+    try {
+      const translation = await translateText(question.text, question.options, question.explanation);
+      if (translation) {
+        setDynamicTranslation(translation);
+        setShowTranslation(true);
+      } else {
+        alert("Translation unavailable.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error fetching translation.");
+    } finally {
+      setIsLoadingTranslation(false);
+    }
   };
 
-  const useTranslation = showTranslation && question.translation;
+  const translationSource = question.translation || dynamicTranslation;
+  const useTranslation = showTranslation && translationSource;
 
-  const currentText = useTranslation ? question.translation!.text : question.text;
-  const currentOptions = useTranslation ? question.translation!.options : question.options;
+  const currentText = useTranslation ? translationSource!.text : question.text;
+  const currentOptions = useTranslation ? translationSource!.options : question.options;
   const currentExplanation = useTranslation 
-    ? question.translation!.explanation 
+    ? translationSource!.explanation 
     : (question.explanation || "Correct answer marked based on source material.");
 
   return (
@@ -54,12 +87,20 @@ export const QuizCard: React.FC<QuizCardProps> = ({ question, onAnswer, isLastQu
       <div className="bg-slate-50 dark:bg-slate-800/50 p-3 flex justify-end border-b border-gray-100 dark:border-slate-700">
         <button
           onClick={toggleTranslation}
+          disabled={isLoadingTranslation}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors
             ${showTranslation ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'}
+            ${isLoadingTranslation ? 'opacity-75 cursor-wait' : ''}
           `}
         >
-          <LanguageIcon className="w-4 h-4" />
-          {showTranslation ? 'Italiano' : 'English'}
+          {isLoadingTranslation ? (
+            <span>Translating...</span>
+          ) : (
+            <>
+              <LanguageIcon className="w-4 h-4" />
+              {showTranslation ? 'Italiano' : 'English'}
+            </>
+          )}
         </button>
       </div>
 
