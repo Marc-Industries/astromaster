@@ -1,51 +1,53 @@
-import { GoogleGenAI } from "@google/genai";
-
-// Note: In a production static app, you wouldn't typically have process.env available
-// without a build step or user input. Following instructions to use process.env.API_KEY.
-const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.warn("API_KEY is not set. Translation will not work.");
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
-};
+import { GoogleGenAI, Type } from "@google/genai";
 
 export const translateText = async (
   text: string, 
   options: string[], 
   explanation?: string
 ): Promise<{ text: string; options: string[]; explanation: string } | null> => {
-  const ai = getAiClient();
-  if (!ai) return null;
+  // Always use new GoogleGenAI({apiKey: process.env.API_KEY}) directly as per guidelines.
+  // The API key is assumed to be available via the define in vite.config.ts.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
-    const prompt = `
-      Translate the following astronomy quiz question, its options, and the explanation into Italian.
-      Return ONLY a valid JSON object with the following structure:
-      {
-        "question": "Translated question text",
-        "options": ["Translated Option 1", "Translated Option 2", "Translated Option 3", "Translated Option 4"],
-        "explanation": "Translated explanation (or generate a brief one if empty)"
-      }
-
+    const prompt = `Translate the following astronomy quiz question, its options, and the explanation into Italian.
+      
       Input:
       Question: "${text}"
       Options: ${JSON.stringify(options)}
-      Explanation: "${explanation || ''}"
-    `;
+      Explanation: "${explanation || ''}"`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-latest',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            text: {
+              type: Type.STRING,
+              description: "The translated question text"
+            },
+            options: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: "The translated options"
+            },
+            explanation: {
+              type: Type.STRING,
+              description: "The translated explanation"
+            }
+          },
+          required: ["text", "options", "explanation"]
+        }
       }
     });
 
     const resultText = response.text;
     if (!resultText) return null;
     
+    // Parse the JSON response which matches the schema
     return JSON.parse(resultText);
   } catch (error) {
     console.error("Translation failed:", error);
