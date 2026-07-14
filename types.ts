@@ -23,5 +23,6 @@ export enum AppView {
   HOME = 'HOME',
   QUIZ = 'QUIZ',
   INFO = 'INFO',
-  CHEATSHEET = 'CHEATSHEET'
+  CHEATSHEET = 'CHEATSHEET',
+  THEORY = 'THEORY'
 }
