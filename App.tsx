@@ -134,16 +134,16 @@ const App: React.FC = () => {
   const wrongQuestions = questionBank.filter(q => wrongQuestionIds.has(q.id));
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 pb-20 transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 pb-20 transition-colors duration-300">
       {/* Navbar */}
       <nav className="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl text-blue-900 dark:text-blue-400">
-            <BookOpenIcon className="w-6 h-6 text-blue-600 dark:text-blue-500" />
-            <span>AstroMaster</span>
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 h-16 flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1.5 font-bold text-base sm:text-xl text-blue-900 dark:text-blue-400 flex-shrink-0">
+            <BookOpenIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-500 flex-shrink-0" />
+            <span className="hidden sm:inline">AstroMaster</span>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex gap-4 text-sm font-medium">
+          <div className="flex items-center gap-1 sm:gap-6 min-w-0 overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 sm:gap-4 text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0">
               <button 
                 onClick={() => setView(AppView.HOME)}
                 className={`transition-colors ${view === AppView.HOME ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'}`}
@@ -160,24 +160,24 @@ const App: React.FC = () => {
                 onClick={() => setView(AppView.CHEATSHEET)}
                 className={`flex items-center gap-1 transition-colors ${view === AppView.CHEATSHEET ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'}`}
               >
-                <SparklesIcon className="w-4 h-4" />
-                Ripasso
+                <SparklesIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden xs:inline">Ripasso</span>
               </button>
               <button 
                 onClick={() => setView(AppView.THEORY)}
                 className={`flex items-center gap-1 transition-colors ${view === AppView.THEORY ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'}`}
               >
-                <AcademicCapIcon className="w-4 h-4" />
-                Teoria
+                <AcademicCapIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="hidden xs:inline">Teoria</span>
               </button>
             </div>
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-slate-400"
+              className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-slate-400 flex-shrink-0"
               aria-label="Toggle Dark Mode"
             >
-              {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+              {darkMode ? <SunIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <MoonIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
         </div>
