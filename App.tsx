@@ -6,7 +6,7 @@ import { ProgressBar } from './components/ProgressBar';
 import { GlobalProgress } from './components/GlobalProgress';
 import { WrongAnswersReview } from './components/WrongAnswersReview';
 import { CheatSheet } from './components/CheatSheet';
-import { TOTAL_QUIZ_QUESTIONS, STORAGE_KEY_SEEN, STORAGE_KEY_WRONG } from './constants';
+import { TOTAL_QUIZ_QUESTIONS, STORAGE_KEY_SEEN, STORAGE_KEY_WRONG, QUIZ_MODES } from './constants';
 import { BookOpenIcon, PlayCircleIcon, InformationCircleIcon, SunIcon, MoonIcon, SparklesIcon } from '@heroicons/react/24/solid';
 
 const App: React.FC = () => {
@@ -82,10 +82,10 @@ const App: React.FC = () => {
     localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(Array.from(wrongQuestionIds)));
   }, [wrongQuestionIds]);
 
-  const startQuiz = useCallback(() => {
+  const startQuiz = useCallback((count: number = TOTAL_QUIZ_QUESTIONS) => {
     // Randomize and slice questions
     const shuffled = [...questionBank].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, TOTAL_QUIZ_QUESTIONS);
+    const selected = shuffled.slice(0, Math.min(count, shuffled.length));
     setActiveQuestions(selected);
     setCurrentIndex(0);
     setScore(0);
@@ -187,18 +187,32 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid gap-4 w-full max-w-xs">
-              <button
-                onClick={startQuiz}
-                className="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
-              >
-                <PlayCircleIcon className="w-6 h-6" />
-                Start Quiz ({TOTAL_QUIZ_QUESTIONS} Qs)
-              </button>
-              
+            <div className="w-full max-w-xs space-y-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Scegli una modalità
+              </p>
+              <div className="grid gap-3">
+                {QUIZ_MODES.map((mode) => (
+                  <button
+                    key={mode.key}
+                    onClick={() => startQuiz(mode.count)}
+                    className="flex items-center justify-between gap-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white px-6 py-4 rounded-xl font-bold shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
+                  >
+                    <span className="flex items-center gap-3">
+                      <PlayCircleIcon className="w-6 h-6" />
+                      <span className="text-left">
+                        <span className="block text-lg leading-tight">{mode.label}</span>
+                        <span className="block text-xs font-normal opacity-80">{mode.description}</span>
+                      </span>
+                    </span>
+                    <span className="text-sm font-mono bg-white/20 px-2 py-1 rounded-md">{mode.count} Qs</span>
+                  </button>
+                ))}
+              </div>
+
               <button
                 onClick={() => setView(AppView.INFO)}
-                className="flex items-center justify-center gap-3 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 px-8 py-3 rounded-xl font-semibold transition-all"
+                className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 px-8 py-3 rounded-xl font-semibold transition-all"
               >
                 <InformationCircleIcon className="w-6 h-6 text-slate-400 dark:text-slate-500" />
                 My Progress
@@ -229,12 +243,23 @@ const App: React.FC = () => {
               </ul>
             </div>
 
-            <button
-               onClick={startQuiz}
-               className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors"
-            >
-              Start New Quiz
-            </button>
+            <div className="space-y-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Inizia un nuovo quiz
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {QUIZ_MODES.map((mode) => (
+                  <button
+                    key={mode.key}
+                    onClick={() => startQuiz(mode.count)}
+                    className="flex flex-col items-center justify-center gap-0.5 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors"
+                  >
+                    <span>{mode.label}</span>
+                    <span className="text-xs font-normal opacity-80">{mode.count} Qs</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
