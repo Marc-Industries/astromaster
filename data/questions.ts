@@ -228,19 +228,19 @@ export const questionBank: Question[] = [
       "Multi-Object spectrographs can take spectra of several objects in the focal plane at the same time",
       "Echelle spectrographs allow for extremely high resolution, but only for ground instruments",
       "Slit spectrographs can only be used for point-like sources and not for extended objects",
-      "Unit spectrographs split the image in several parts, a spectrum is obtained for each one"
+      "Integral Field Unit spectrographs split the image in several parts, a spectrum is obtained for each one"
     ],
-    correctAnswerIndex: 1,
-    explanation: "Echelle spectrographs are used in space instruments as well (e.g., HST STIS).",
+    correctAnswerIndex: 2,
+    explanation: "Long-slit spectroscopy is routinely used on extended objects too (e.g. galaxies, nebulae) by placing the slit across the source, so this statement is the wrong one.",
     translation: {
       text: "Segna la frase ERRATA riguardo ai diversi tipi di spettrografi",
       options: [
         "Gli spettrografi Multi-Object possono prendere spettri di diversi oggetti nel piano focale contemporaneamente",
         "Gli spettrografi Echelle permettono una risoluzione estremamente alta, ma solo per strumenti a terra",
         "Gli spettrografi a fenditura possono essere usati solo per sorgenti puntiformi e non per oggetti estesi",
-        "Gli spettrografi Unit dividono l'immagine in diverse parti, uno spettro è ottenuto per ognuna"
+        "Gli spettrografi IFU (Integral Field Unit) dividono l'immagine in diverse parti, uno spettro è ottenuto per ognuna"
       ],
-      explanation: "Gli spettrografi Echelle sono usati anche negli strumenti spaziali."
+      explanation: "La spettroscopia a fenditura (long-slit) è usata regolarmente anche su oggetti estesi (galassie, nebulose), quindi questa è la frase sbagliata."
     }
   },
   {
@@ -824,8 +824,8 @@ export const questionBank: Question[] = [
       "The observation of neutrinos from the core of the Sun has permitted their mass determination, awarded with several Nobel prizes",
       "composition has not changed since formation. In the core, 5% of the primordial Hydrogen has been converted to Helium"
     ],
-    correctAnswerIndex: 3,
-    explanation: "About half of the core hydrogen has been converted, not 5%.",
+    correctAnswerIndex: 1,
+    explanation: "Nearly all of the Sun's fusion power (well over 90%) is produced within the inner 0.25 solar radii, so the '19%' figure is the wrong one; ~5% of the Sun's total primordial hydrogen converted to helium is a plausible figure.",
     translation: {
       text: "Segna la frase ERRATA riguardo al Sole",
       options: [
@@ -834,7 +834,7 @@ export const questionBank: Question[] = [
         "L'osservazione dei neutrini dal nucleo ha permesso la determinazione della loro massa",
         "la composizione non è cambiata dalla formazione. Nel nucleo, il 5% dell'Idrogeno primordiale è stato convertito in Elio"
       ],
-      explanation: "Circa metà dell'idrogeno del nucleo è stato convertito."
+      explanation: "Quasi tutta l'energia del Sole (oltre il 90%) è prodotta entro 0.25 raggi solari, quindi il valore '19%' è quello sbagliato; il 5% di Idrogeno convertito è invece plausibile."
     }
   },
   {
@@ -1304,17 +1304,21 @@ export const questionBank: Question[] = [
     text: "Mark the WRONG sentence regarding the different definitions of temperature of a gas or surface",
     options: [
       "Brightness Temperature: temperature corresponding to a star with the same flux density of the Sun",
-      "Kinetic Temperature: the temperature % of a gas defined by the average velocity of its particle"
+      "Kinetic Temperature: the temperature of a gas defined by the average velocity of its particles",
+      "Effective Temperature: the temperature of a blackbody with the same total luminosity and radius as the star",
+      "Color Temperature: the temperature obtained by fitting the shape of the spectrum to a blackbody curve"
     ],
     correctAnswerIndex: 0,
-    explanation: "Brightness temp corresponds to blackbody, not necessarily the Sun.",
+    explanation: "Brightness Temperature is properly defined relative to a blackbody with the same observed flux/intensity at a given frequency, not 'the same flux density of the Sun'.",
     translation: {
       text: "Segna la frase ERRATA sulle definizioni di temperatura",
       options: [
         "Temperatura di Brillanza: temperatura corrispondente a una stella con lo stesso flusso del Sole",
-        "Temperatura Cinetica: definita dalla velocità media delle particelle"
+        "Temperatura Cinetica: definita dalla velocità media delle particelle del gas",
+        "Temperatura Effettiva: temperatura di un corpo nero con la stessa luminosità totale e lo stesso raggio della stella",
+        "Temperatura di Colore: temperatura ottenuta adattando la forma dello spettro a una curva di corpo nero"
       ],
-      explanation: "La temperatura di brillanza si riferisce a un corpo nero."
+      explanation: "La temperatura di brillanza si definisce correttamente rispetto a un corpo nero con la stessa intensità osservata a una data frequenza, non 'lo stesso flusso del Sole'."
     }
   },
   {
@@ -2778,8 +2782,8 @@ export const questionBank: Question[] = [
       "c. These stars are fully convective, so the entirety of its mass can be used as fuel for fusion reactions",
       "d. At some point the universe will consist only of low-mass, cold stars, since they are also favoured in stellar formation"
     ],
-    correctAnswerIndex: 0,
-    explanation: "Very low mass stars (red dwarfs) become Helium white dwarfs, not CO.",
+    correctAnswerIndex: 1,
+    explanation: "Per il materiale del corso, low-mass stars terminano come nane bianche di Carbonio-Ossigeno (vero); l'affermazione errata è quella sulla durata di vita.",
     translation: {
       text: "Segna la frase ERRATA su stelle di bassa massa",
       options: [
@@ -2788,7 +2792,7 @@ export const questionBank: Question[] = [
         "Interamente convettive, usano tutta la massa",
         "L'universo consisterà solo di stelle fredde"
       ],
-      explanation: "Diventano nane bianche di Elio."
+      explanation: "Secondo il materiale del corso, l'affermazione sulla durata di vita (trilioni di anni) è quella considerata errata."
     }
   },
   {
@@ -3255,24 +3259,24 @@ export const questionBank: Question[] = [
   },
   {
     id: 149,
-    text: "mark the wrong sentence regardingthe movement of the earth",
+    text: "Mark the WRONG sentence regarding the movement of the Earth",
     options: [
-      "a. planetary precession is included by the oblateness of other planets, especially saturn",
-      "b. precession is due to the moon and sun pulling o the oblateness of the earth",
-      "c. nutation is called by the moon’s orbit begin eccentric and inclined with respect to the ecliptic",
-      "d. the celestial pole is always on a point of the small circle 23.5 from the ecliptic pole"
+      "Planetary precession is caused by the oblateness of other planets, especially Saturn",
+      "Lunisolar precession is due to the Moon and Sun pulling on the oblateness of the Earth",
+      "Nutation is caused by the Moon's orbit being eccentric and inclined with respect to the Ecliptic",
+      "The celestial pole is always on a point of the small circle 23.5 degrees from the Ecliptic pole"
     ],
-    correctAnswerIndex: 3,
-    explanation: "Pole moves along the circle, implies movement.",
+    correctAnswerIndex: 0,
+    explanation: "Planetary precession is caused by the gravitational pull of other planets slowly changing the orientation of Earth's orbital plane (the Ecliptic), not by the oblateness (shape) of those planets. The other three statements are correct.",
     translation: {
-      text: "frase errata movimento terra",
+      text: "Segna la frase ERRATA riguardo al moto della Terra",
       options: [
-        "precessione planetaria inclusa da schiacciamento",
-        "precessione dovuta a luna/sole",
-        "nutazione da orbita luna",
-        "polo celeste sempre su un punto del cerchio"
+        "La precessione planetaria è causata dallo schiacciamento (oblunghezza) degli altri pianeti, specialmente Saturno",
+        "La precessione luni-solare è dovuta all'attrazione di Luna e Sole sullo schiacciamento della Terra",
+        "La nutazione è causata dall'eccentricità e dall'inclinazione dell'orbita lunare rispetto all'eclittica",
+        "Il polo celeste si trova sempre su un punto del piccolo cerchio a 23.5 gradi dal polo dell'eclittica"
       ],
-      explanation: "Il polo si muove."
+      explanation: "La precessione planetaria è causata dall'attrazione gravitazionale degli altri pianeti, che modifica lentamente il piano orbitale terrestre (l'eclittica), non dalla forma schiacciata di quei pianeti. Le altre tre affermazioni sono corrette."
     }
   },
   {
