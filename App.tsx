@@ -1,206 +1,165 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { questionBank } from './data/questions';
-import { Question, AppView } from './types';
-import { QuizCard } from './components/QuizCard';
-import { ProgressBar } from './components/ProgressBar';
-import { GlobalProgress } from './components/GlobalProgress';
-import { TOTAL_QUIZ_QUESTIONS, STORAGE_KEY_SEEN } from './constants';
-import { BookOpenIcon, PlayCircleIcon, InformationCircleIcon, SunIcon, MoonIcon } from '@heroicons/react/24/solid';
+export interface CheatSheetSection {
+  title: string;
+  emoji: string;
+  tips: string[];
+}
 
-const App: React.FC = () => {
-  const [view, setView] = useState<AppView>(AppView.HOME);
-  const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [seenQuestionIds, setSeenQuestionIds] = useState<Set<number>>(new Set());
-  const [score, setScore] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Initialize Dark Mode
-  useEffect(() => {
-    const isDark = localStorage.getItem('astroquiz_theme') === 'dark' || 
-      (!('astroquiz_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
-    setDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('astroquiz_theme', newMode ? 'dark' : 'light');
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  // Load seen questions from local storage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY_SEEN);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setSeenQuestionIds(new Set(parsed));
-        }
-      } catch (e) {
-        console.error("Failed to parse seen questions", e);
-      }
-    }
-  }, []);
-
-  // Save seen questions whenever they change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_SEEN, JSON.stringify(Array.from(seenQuestionIds)));
-  }, [seenQuestionIds]);
-
-  const startQuiz = useCallback(() => {
-    // Randomize and slice questions
-    const shuffled = [...questionBank].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, TOTAL_QUIZ_QUESTIONS);
-    setActiveQuestions(selected);
-    setCurrentIndex(0);
-    setScore(0);
-    setView(AppView.QUIZ);
-  }, []);
-
-  const handleAnswer = (isCorrect: boolean) => {
-    if (isCorrect) setScore(s => s + 1);
-    
-    // Mark current question as seen
-    const currentQ = activeQuestions[currentIndex];
-    setSeenQuestionIds(prev => new Set(prev).add(currentQ.id));
-
-    if (currentIndex < activeQuestions.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      window.scrollTo(0, 0);
-    } else {
-      alert(`Quiz Finished! Score: ${isCorrect ? score + 1 : score}/${activeQuestions.length}`);
-      setView(AppView.INFO);
-    }
-  };
-
-  const handleResetProgress = () => {
-    if (confirm("Are you sure you want to reset your global learning progress?")) {
-      setSeenQuestionIds(new Set());
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 pb-20 transition-colors duration-300">
-      {/* Navbar */}
-      <nav className="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl text-blue-900 dark:text-blue-400">
-            <BookOpenIcon className="w-6 h-6 text-blue-600 dark:text-blue-500" />
-            <span>AstroMaster</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex gap-4 text-sm font-medium">
-              <button 
-                onClick={() => setView(AppView.HOME)}
-                className={`transition-colors ${view === AppView.HOME ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'}`}
-              >
-                Home
-              </button>
-              <button 
-                onClick={() => setView(AppView.INFO)}
-                className={`transition-colors ${view === AppView.INFO ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'}`}
-              >
-                Info
-              </button>
-            </div>
-            {/* Theme Toggle */}
-            <button 
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-slate-400"
-              aria-label="Toggle Dark Mode"
-            >
-              {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        
-        {view === AppView.HOME && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-fade-in">
-            <div className="space-y-4 max-w-lg">
-              <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Master Astronomy & Physics
-              </h1>
-              <p className="text-lg text-slate-600 dark:text-slate-400">
-                Practice 140+ questions. Track your progress. Translate instantly.
-              </p>
-            </div>
-
-            <div className="grid gap-4 w-full max-w-xs">
-              <button
-                onClick={startQuiz}
-                className="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-all hover:scale-105 active:scale-95"
-              >
-                <PlayCircleIcon className="w-6 h-6" />
-                Start Quiz ({TOTAL_QUIZ_QUESTIONS} Qs)
-              </button>
-              
-              <button
-                onClick={() => setView(AppView.INFO)}
-                className="flex items-center justify-center gap-3 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300 px-8 py-3 rounded-xl font-semibold transition-all"
-              >
-                <InformationCircleIcon className="w-6 h-6 text-slate-400 dark:text-slate-500" />
-                My Progress
-              </button>
-            </div>
-          </div>
-        )}
-
-        {view === AppView.INFO && (
-          <div className="max-w-xl mx-auto space-y-6">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Your Statistics</h2>
-            <GlobalProgress 
-              seenCount={seenQuestionIds.size} 
-              totalCount={questionBank.length} 
-              onReset={handleResetProgress}
-            />
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800">
-              <h3 className="font-bold text-blue-900 dark:text-blue-300 mb-2">How it works</h3>
-              <ul className="list-disc list-inside space-y-2 text-sm text-blue-800 dark:text-blue-200/80">
-                <li>Quizzes are generated randomly from the pool.</li>
-                <li>Each unique question you see is tracked.</li>
-                <li>Use the language toggle inside the quiz to translate difficult questions.</li>
-              </ul>
-            </div>
-
-            <button
-               onClick={startQuiz}
-               className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors"
-            >
-              Start New Quiz
-            </button>
-          </div>
-        )}
-
-        {view === AppView.QUIZ && activeQuestions.length > 0 && (
-          <div className="max-w-2xl mx-auto">
-            <ProgressBar current={currentIndex + 1} total={activeQuestions.length} />
-            <QuizCard 
-              question={activeQuestions[currentIndex]} 
-              onAnswer={handleAnswer}
-              isLastQuestion={currentIndex === activeQuestions.length - 1}
-            />
-          </div>
-        )}
-      </main>
-    </div>
-  );
-};
-
-export default App;
+// Condensed, practical "trucchi" for the exam, distilled from the course
+// answer-key notes. Organized by topic so it's quick to scroll through
+// the night before the exam.
+export const cheatSheetData: CheatSheetSection[] = [
+  {
+    title: 'Sistemi di coordinate e tempo',
+    emoji: '🧭',
+    tips: [
+      "Punto Vernale = intersezione tra Equatore ed Eclittica (non l'orizzonte!).",
+      'Ascensione Retta: distanza dal Punto Vernale lungo l\'Equatore, misurata in senso ANTI-orario.',
+      "Angolo Orario: distanza dal Meridiano Locale lungo l'Equatore, misurato in senso ORARIO.",
+      'Tempo Sidereo = Angolo Orario del Punto Vernale = somma di Angolo Orario + Ascensione Retta di una stella.',
+      "Sistemi Orizzontale ed Equatoriale condividono l'asse Est-Ovest.",
+      'Il sistema Orizzontale è l\'unico ESCLUSIVAMENTE topocentrico.',
+      "Giorno Sidereo ≠ Giorno Solare: il sidereo è più corto (~23h56m4s) perché la Terra orbita anche intorno al Sole. Il tempo sidereo \"corre più veloce\".",
+      'Anno Tropico: tra due passaggi del Sole sul Punto Vernale (risente della precessione). Anno Siderale: rispetto a una direzione fissa (le stelle).',
+      'Anno Draconico: passaggi della LUNA sul Punto Vernale (non del Sole!).',
+      "Equazione del Tempo = Tempo Solare Apparente − Tempo Solare Medio (dipende da eccentricità orbitale e obliquità dell'eclittica).",
+      'Precessione luni-solare: causata da Luna e Sole che agiscono sullo schiacciamento (oblateness) della Terra — ampiezza ~23.5° (o 23.5 arcmin a seconda della domanda), periodo ~26000 anni.',
+      'Precessione planetaria: causata dalla gravità degli ALTRI PIANETI che cambia il piano orbitale terrestre (NON dal loro schiacciamento).',
+      "Nutazione: causata dall'inclinazione/eccentricità dell'orbita LUNARE rispetto all'eclittica — ampiezza ~9.2 arcsec, periodo 18.6 anni.",
+      "Moto del Polo (Polar Motion): ampiezza ~0.3 arcsec, periodi di 12 e 14 mesi.",
+      'Aberrazione annua: a latitudine eclittica 0° la stella si muove su una linea PARALLELA all\'eclittica; a 45° descrive un\'ELLISSE con un asse perpendicolare all\'eclittica.',
+      "Parallasse annua: baseline = raggio dell'orbita terrestre (1 UA). Parallasse diurna: baseline = raggio equatoriale terrestre, dipende dalla latitudine dell'osservatore. Parallasse secolare: baseline legata al moto del Sole nella Galassia (NON all'orbita lunare).",
+      'Rifrazione è l\'unica perturbazione delle coordinate NON legata ai moti della Terra (parallasse, aberrazione e precessione sì).',
+      "Calendario attualmente in uso: Gregoriano.",
+      'TAI è indipendente da effetti astronomici e scorre a ritmo costante; UT1 risente della rotazione terrestre (rallentamento secolare + irregolarità); UTC segue il ritmo del TAI ma resta entro 0.9s da UT1 (con leap second).',
+      "Perielio: avviene attorno al 3 gennaio (NON in estate boreale!) — l'estate nell'emisfero Nord dura ~7 giorni più a lungo perché la Terra è più lenta vicino all'afelio (2ª legge di Keplero).",
+    ],
+  },
+  {
+    title: 'Radiazione, spettroscopia e fotometria',
+    emoji: '🌈',
+    tips: [
+      'PARSEC = distanza a cui 1 Unità Astronomica sottende un angolo di 1 arcosecondo.',
+      "L'energia di un fotone AUMENTA al diminuire della lunghezza d'onda (E = hc/λ): un raggio Gamma è più energetico di uno UV.",
+      'Indice di colore = differenza di magnitudine della STESSA stella a due lunghezze d\'onda diverse (non tra due stelle diverse!).',
+      'Intensità totale = integrale della intensità specifica su un angolo solido. Flusso è proporzionale a 1/distanza².',
+      "Spettrografi a fenditura (slit): si usano ANCHE su oggetti estesi (es. galassie), non solo su sorgenti puntiformi.",
+      'Spettrografi Echelle: alta risoluzione, usati sia da terra sia nello spazio (es. HST/STIS).',
+      'IFU (Integral Field Unit): divide l\'immagine in tante parti, uno spettro per ciascuna.',
+      'Corpo nero: intensità e frequenza di picco AUMENTANO con la temperatura (non diminuiscono).',
+      "Magnitudine apparente: si ottiene confrontando il flusso di DUE STELLE DIVERSE alla stessa lunghezza d'onda (Pogson).",
+      "Pogson: una differenza di 5 magnitudini corrisponde a un fattore 100 in flusso (stelle di 6° magnitudine sono 100x più deboli di quelle di 1°, non 10000x).",
+      "La magnitudine apparente da sola NON basta per la luminosità reale: serve la distanza (modulo di distanza = m − M).",
+      'Sistema fotometrico moderno = definito dalla curva di risposta del filtro in funzione della lunghezza d\'onda.',
+      "Classificazione spettrale di Harvard: O-B-A (blu-bianche, 7500–50000K) — F-G-K (giallo-arancio, 3500–7500K) — M-L-T (rosse e brune, sotto i 3500K, NON sopra i 50000K!).",
+      'Il catalogo di Draper riordinò in lettere le classi originali di Secchi (basate su colore/righe, non sulla distanza).',
+    ],
+  },
+  {
+    title: 'Sistema Solare',
+    emoji: '🪐',
+    tips: [
+      'Nebulosa solare primordiale: ~98% Idrogeno ed Elio.',
+      'Pianeti interni = rocce e metalli; pianeti esterni (gioviani) = gas (H, He) e ghiacci — perché nella regione esterna (oltre la frost line) condensò molto più materiale.',
+      "Frost line = confine tra pianeti interni ed esterni, oltre il quale i ghiacci possono condensare.",
+      "Atmosfera principale della Terra: Azoto (N2). Marte e Venere: CO2. Titano: Azoto (come la Terra!).",
+      'Atmosfera primaria = Idrogeno (+ Elio); atmosfera secondaria = gas rilasciati successivamente (es. da vulcanismo).',
+      'Limite di Roche dipende dal raggio del pianeta principale × radice cubica del rapporto tra le densità dei due corpi.',
+      "Shepherd satellites: piccole lune che orbitano tra gli anelli di Saturno (e di altri giganti gassosi).",
+      'Giove ha massa ~317 volte quella della Terra; periodo orbitale ~12 anni terrestri.',
+      "Il forte campo magnetico di Giove nasce da uno spesso strato di idrogeno metallico liquido nel suo interno.",
+      'Venere non ha campo magnetico a causa della sua rotazione molto lenta (nonostante l\'interno sia probabilmente ancora parzialmente fluido).',
+      "Venere e Urano sono eccezioni per la rotazione RETROGRADA.",
+      'Coda ionica delle comete: interazione tra ioni cometari e vento solare. Coda di polvere: interazione tra polvere cometaria e pressione di radiazione solare.',
+      "Ghiaccio più abbondante nelle comete: H2O.",
+      'Comete a corto periodo: provengono dalla Fascia di Kuiper. Comete a lungo periodo: dalla Nube di Oort.',
+      "Fascia Principale (Main Belt): tra le orbite di Marte e Giove.",
+      'Asteroidi Troiani di Giove: nei punti Lagrangiani L4 e L5 (formano un triangolo equilatero con Sole e Giove) — NON in L2/L3.',
+      "Classe tassonomica reale di asteroidi: Carbonacei (C-type). Non esistono le classi 'Gaseous' o 'Crystalline'.",
+      'Pianeta con densità più bassa nel Sistema Solare: Saturno (galleggerebbe sull\'acqua!).',
+      'Near Earth Objects: oggetti con orbite vicine a quella terrestre o che la intersecano (non necessariamente "alta probabilità di impatto" o solo nella Main Belt).',
+      "Effetto Yarkowsky: piccola spinta su un corpo rotante causata dall'emissione termica asimmetrica (dopo aver assorbito luce solare) — non è vento solare né gravità.",
+      "Titano (luna di Saturno): unica luna del Sistema Solare con un'atmosfera densa, a base di Azoto.",
+      "Cosa rende Urano insolito: l'inclinazione estrema del suo asse di rotazione (~98°).",
+    ],
+  },
+  {
+    title: 'Il Sole',
+    emoji: '☀️',
+    tips: [
+      'Nucleo radiativo fino a 0.7 raggi solari, poi inviluppo convettivo.',
+      "Quasi tutta l'energia (oltre il 90%) è prodotta entro 0.25 raggi solari — occhio ai numeri bassi (es. '19%') messi apposta come trabocchetto.",
+      '~5% dell\'Idrogeno primordiale del Sole è stato convertito in Elio nel corso della sua vita.',
+      "Il Sole NON ruota come corpo rigido: nella zona convettiva la velocità angolare varia con la latitudine; il nucleo radiativo ruota come un corpo rigido.",
+      "Tachocline = zona di transizione tra nucleo radiativo e zona convettiva.",
+      'Fotosfera si osserva con telescopio normale (con filtro H-alpha per la cromosfera); la corona solo durante un\'eclisse (o con coronografo).',
+      "Cromosfera: la temperatura AUMENTA verso l'esterno (inversione del gradiente).",
+      'Macchie solari: regioni ~1500K più fredde della fotosfera circostante, possono durare anche diversi anni.',
+      "Facole: regioni chiare (non scure!) associate a un rafforzamento locale del campo magnetico, spesso vicino alle macchie.",
+      'Protuberanze: linee di campo magnetico che si innalzano sopra la superficie in un loop, con gas caldo che vi scorre.',
+      "Neutrini solari: la loro osservazione ha permesso di determinarne la MASSA (premio Nobel), non l'età del Sole.",
+    ],
+  },
+  {
+    title: 'Stelle ed evoluzione stellare',
+    emoji: '⭐',
+    tips: [
+      "Sequenza Principale: le stelle NON sono sparse a caso nel diagramma H-R, seguono una sequenza ben definita legata alla massa.",
+      "Energia di equilibrio idrostatico = fusione dell'Idrogeno nel nucleo (non gravitazionale, non chimica/radioattiva).",
+      "Senza pressione interna, una stella collasserebbe in circa mezz'ora.",
+      'Teorema di Vogt-Russell: la struttura di una stella è univocamente determinata da massa e composizione chimica.',
+      'Isocrona: luminosità e temperatura di un insieme di stelle con stessa età/composizione, su un ampio intervallo di massa (utile per datare gli ammassi).',
+      "Fase di Gigante: quando l'Idrogeno si esaurisce nel nucleo, brucia in un guscio attorno a un nucleo di Elio inerte. Il Turn-Off segna l'uscita dalla Sequenza Principale.",
+      'Ramo Orizzontale: fusione dell\'Elio nel nucleo (reazione tripla-alfa, T>100 milioni di K, produce C e O).',
+      "Fase AGB (Asymptotic Giant Branch): due gusci attivi (H e He) attorno a un nucleo di C-O; la stella espelle l'inviluppo (Nebulosa Planetaria), lasciando una nana bianca.",
+      'Ciclo CNO: predominante solo nelle stelle più massicce del Sole; NON è meno sensibile alla temperatura (anzi, lo è molto di più della catena p-p).',
+      "Stelle massicce: convezione nel nucleo, inviluppo radiativo (l'opposto delle stelle di piccola massa!).",
+      'Combustione del Carbonio e oltre: ogni fase successiva è più rapida (il Silicio dura solo poche settimane), ma NON converte tutta la massa nell\'elemento successivo.',
+      'Poco prima della supernova: nucleo di Ferro (che NON produce energia fondendo, ha la massima energia di legame per nucleone) circondato da gusci di elementi via via più leggeri.',
+      'Nane bianche: composte principalmente da Carbonio e Ossigeno con sottile atmosfera di H o He; la pressione di degenerazione elettronica NON dipende dalla temperatura ma SOLO dalla densità, e NON può sostenere una nana bianca di massa qualsiasi (limite di Chandrasekhar).',
+      "Oltre il limite di Chandrasekhar la pressione di degenerazione elettronica non basta più: collasso verso stella di neutroni.",
+      "Stelle di neutroni: raggio ~10 km, densità da nucleo atomico; NON tutta emette un fascio radio regolare — solo quelle allineate diventano 'pulsar' visibili.",
+      'Buchi neri: un osservatore esterno vede l\'orologio di chi cade RALLENTARE (non accelerare) man mano che si avvicina all\'orizzonte degli eventi.',
+      "Un resto di supernova NON diventa sempre un buco nero: dipende dalla massa residua rispetto al limite TOV.",
+    ],
+  },
+  {
+    title: 'Ammassi, galassie e struttura su grande scala',
+    emoji: '🌌',
+    tips: [
+      "Ammassi aperti: fino a migliaia di stelle, più legati gravitazionalmente delle associazioni. Associazioni: poche decine di stelle giovani, si disperdono rapidamente in stream/moving groups.",
+      "Ammassi globulari: distribuzione sferica attorno al centro Galattico — utile per stimarne la distanza dal centro.",
+      "Le distanze delle stelle in un ammasso sono più facili da misurare rispetto a stelle isolate (stessa distanza per tutte).",
+      'Galassie ellittiche: stelle vecchie di piccola massa, poco mezzo interstellare, minima formazione stellare.',
+      "Le galassie POSSONO scontrarsi/fondersi (non è affatto raro!) — le proprietà strutturali NON sono preservate per sempre.",
+      "Piccole galassie isolate esistono davvero, non orbitano sempre attorno a galassie più grandi.",
+      'La curva di rotazione piatta (velocità costante) nelle periferie delle galassie è la prova storica della materia oscura.',
+      "Le braccia a spirale NON sono strutture rigide che ruotano in blocco (problema dell'avvolgimento, spiegato dalla densità a onda).",
+    ],
+  },
+  {
+    title: 'Esopianeti',
+    emoji: '🔭',
+    tips: [
+      "Definizione di pianeta/esopianeta: orbita una stella (o un altro pianeta/fluttua libero) + equilibrio idrostatico + ha ripulito l'orbita — attenzione alle domande che negano una di queste condizioni.",
+      "Object of Interest: segnale simile a un pianeta di origine sconosciuta. Candidate: in attesa di conferma. Validated: bassa probabilità di falso positivo. Confirmed: confermato con tecnica indipendente.",
+      "'Candidate planet selezionato dalla IAU come possibile Earth 2.0' è un'affermazione INVENTATA (falsa) — la IAU non fa questo.",
+      "Mini-Nettuno: gas/ghiaccio, tra Terra e Nettuno per dimensioni. Super-Terra: rocciosa, poco più grande della Terra. Hot Jupiter/Neptune: periodo orbitale <10 giorni. 'Warm Jupiter' non è definito dall'acqua liquida.",
+      'Zona Abitabile: permette acqua liquida in teoria, ma NON garantisce affatto la presenza di acqua o vita.',
+      'Transito: NON è il metodo meno efficace — è anzi il più prolifico per il numero di pianeti scoperti.',
+      "Velocità Radiale: fornisce solo la massa MINIMA del pianeta (serve l'inclinazione orbitale per la massa vera).",
+      "Missioni per esopianeti: TESS, PLATO, CHEOPS. EUCLID NON è dedicata agli esopianeti (è cosmologia/materia oscura).",
+      'Sinergia terra-spazio per la caratterizzazione degli esopianeti è tutt\'altro che impossibile: è anzi centrale (es. spettroscopia da terra + fotometria dallo spazio).',
+    ],
+  },
+  {
+    title: 'Trappole ricorrenti da tenere a mente',
+    emoji: '⚠️',
+    tips: [
+      "Occhio a 'sempre', 'mai', 'solo', 'nessuna relazione', 'impossibile', 'qualsiasi massa': nelle domande 'Mark the WRONG sentence' sono spesso il segnale della frase costruita apposta per essere falsa.",
+      "Occhio alle domande quasi identiche ripetute più volte nel test (stessa struttura, ordine delle opzioni diverso): la risposta corretta è sempre la stessa affermazione, cambia solo la lettera.",
+      "Se la domanda chiede la definizione di Ascensione Retta e Angolo Orario insieme: RA = dal Punto Vernale, ANTI-orario; HA = dal Meridiano Locale, ORARIO. Sono i due errori più scambiati.",
+      "Se vedi un numero percentuale 'strano' o troppo basso/alto in una frase altrimenti plausibile (es. '19%', '10000 volte'), è quasi sempre lì il trabocchetto.",
+      "Component of X atmosphere: Terra=Azoto, Marte=CO2, Venere=CO2, Titano=Azoto — sono le 4 combinazioni da ricordare a memoria, si confondono facilmente.",
+    ],
+  },
+];
