@@ -6,9 +6,10 @@ import { ProgressBar } from './components/ProgressBar';
 import { GlobalProgress } from './components/GlobalProgress';
 import { WrongAnswersReview } from './components/WrongAnswersReview';
 import { CheatSheet } from './components/CheatSheet';
+import { TheoryGuide } from './components/TheoryGuide';
 import { ModeSwitch } from './components/ModeSwitch';
 import { TOTAL_QUIZ_QUESTIONS, STORAGE_KEY_SEEN, STORAGE_KEY_WRONG, QUIZ_MODES } from './constants';
-import { BookOpenIcon, PlayCircleIcon, InformationCircleIcon, SunIcon, MoonIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { BookOpenIcon, PlayCircleIcon, InformationCircleIcon, SunIcon, MoonIcon, SparklesIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.HOME);
@@ -162,6 +163,13 @@ const App: React.FC = () => {
                 <SparklesIcon className="w-4 h-4" />
                 Ripasso
               </button>
+              <button 
+                onClick={() => setView(AppView.THEORY)}
+                className={`flex items-center gap-1 transition-colors ${view === AppView.THEORY ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200'}`}
+              >
+                <AcademicCapIcon className="w-4 h-4" />
+                Teoria
+              </button>
             </div>
             {/* Theme Toggle */}
             <button 
@@ -249,6 +257,8 @@ const App: React.FC = () => {
         )}
 
         {view === AppView.CHEATSHEET && <CheatSheet />}
+
+        {view === AppView.THEORY && <TheoryGuide />}
 
         {view === AppView.QUIZ && activeQuestions.length > 0 && (
           <div className="max-w-2xl mx-auto">
